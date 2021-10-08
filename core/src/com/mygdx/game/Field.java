@@ -8,6 +8,8 @@ import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
+import java.io.IOException;
+
 public class Field extends Actor {
     Sprite fiel, figure, fiel_active;
     int x, y;
@@ -26,12 +28,14 @@ public class Field extends Actor {
         NONE
     }
 
-    Fig fig = Fig.NONE;
-    Condition condition = Condition.NON_ACTIVE;
+    Fig fig;
+    Condition condition;
     ClickListener listener;
     int num;
 
     public Field(int x, int y, int num, Texture fieldT, Texture fieldActive, Texture X) {
+        fig = Fig.NONE;
+        condition = Condition.NON_ACTIVE;
         this.num = num;
         this.x = x;
         this.y = y;
@@ -55,7 +59,9 @@ public class Field extends Actor {
             public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
                 if (condition == Condition.ACTIVE) {
                     condition = Condition.NON_ACTIVE;
-                    addFigure();
+                    if(GameScreen.nowTurn == GameScreen.turn) {
+                            addFigure();
+                    }
                 }
                 super.touchUp(event, x, y, pointer, button);
             }
@@ -90,18 +96,35 @@ public class Field extends Actor {
 
     public void addFigure() {
         if (fig == Fig.NONE) {
-            if (GameScreen.turn == GameScreen.Turn.O) {
+            if (GameScreen.nowTurn == GameScreen.Turn.O) {
                 figure.setTexture(new Texture("O.png"));
                 figure.setBounds(x, y, _FIELD_SIZE, _FIELD_SIZE);
-                GameScreen.turn = GameScreen.Turn.X;
+                GameScreen.nowTurn = GameScreen.Turn.X;
                 fig = Fig.O;
             } else {
                 figure.setBounds(x, y, _FIELD_SIZE, _FIELD_SIZE);
-                GameScreen.turn = GameScreen.Turn.O;
+                GameScreen.nowTurn = GameScreen.Turn.O;
+                fig = Fig.X;
+                System.out.println(GameScreen.nowTurn);
+            }
+            flag = true;
+            GameScreen.findWin(num);
+            GameScreen.send(num);
+        }
+    }
+
+    public void addFigureFromServer() {
+            if (GameScreen.nowTurn == GameScreen.Turn.O) {
+                figure.setTexture(new Texture("O.png"));
+                figure.setBounds(x, y, _FIELD_SIZE, _FIELD_SIZE);
+                GameScreen.nowTurn = GameScreen.Turn.X;
+                fig = Fig.O;
+            } else {
+                figure.setBounds(x, y, _FIELD_SIZE, _FIELD_SIZE);
+                GameScreen.nowTurn = GameScreen.Turn.O;
                 fig = Fig.X;
             }
             flag = true;
             GameScreen.findWin(num);
         }
-    }
 }

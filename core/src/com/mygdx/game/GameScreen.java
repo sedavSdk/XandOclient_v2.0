@@ -8,9 +8,16 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.FillViewport;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
@@ -21,13 +28,33 @@ public class GameScreen implements Screen {
     final static int _FIELD_SIZE = 25;
     final static int _FIELD_NUM = 27;
     static Stage stage;
+    Start game;
+    static Field.Fig test;
+    static boolean flagWin, flagDispose, flagInput;
     static Vector<Field> fields;
-    public static enum Turn{
+    static PrintWriter out;
+    public enum Turn{
         X,
         O
     }
-    static Turn turn = Turn.X;
-    public GameScreen() {
+    static BufferedReader input;
+    Socket socket;
+    static Turn turn, nowTurn;
+    public GameScreen(Start game) throws IOException {
+        System.out.println(1);
+        socket = new Socket("localhost", 1321);
+        input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        out = new PrintWriter(socket.getOutputStream());
+        String s = input.readLine();
+        if(s.equals("X")) turn = Turn.X;
+        else turn = Turn.O;
+        nowTurn = Turn.X;
+
+        this.game = game;
+        flagWin = false;
+        flagDispose = false;
+        flagInput = false;
+
         fiel = new Texture("field.png");
         fieldActive = new Texture("field_active.png");
         X = new Texture("X.jpg");
@@ -42,8 +69,12 @@ public class GameScreen implements Screen {
             stage.addActor(f);
             fields.add(f);
         }
-
         Gdx.input.setInputProcessor(stage);
+    }
+
+    static void send(int i) {
+        out.println(i);
+        out.flush();
     }
 
     public static void findWin(int i){
@@ -104,17 +135,16 @@ public class GameScreen implements Screen {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                if(fig == Field.Fig.X){
-                    WinX winX;
-                    winX = new WinX();
-                    stage.addActor(winX);
-                }else{
-                    WinO winO;
-                    winO = new WinO();
-                    stage.addActor(winO);
-                }
+                flagWin = true;
+                test = fig;
             }
         }, 1000);
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                flagDispose = true;
+            }
+        }, 2000);
     }
 
     @Override
@@ -124,6 +154,24 @@ public class GameScreen implements Screen {
 
     @Override
     public void render(float delta) {
+        ScreenUtils.clear(0, 0, 0, 1);
+        try {
+            if(nowTurn != turn && input.ready()) resume();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if(flagWin){
+            if(test == Field.Fig.X){
+            WinX winX;
+            winX = new WinX();
+            stage.addActor(winX);
+        }else{
+            WinO winO;
+            winO = new WinO();
+            stage.addActor(winO);
+        }
+        }
+        if(flagDispose) dispose();
         stage.draw();
     }
 
@@ -139,7 +187,12 @@ public class GameScreen implements Screen {
 
     @Override
     public void resume() {
-
+            try {
+                    int u = Integer.parseInt(input.readLine());
+                    fields.get(u).addFigureFromServer();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
     }
 
     @Override
@@ -149,6 +202,15 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
-
+        flagDispose = false;
+        stage.dispose();
+        try {
+            game.setScreen(new GameScreen(game));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        fiel.dispose();
+        fieldActive.dispose();
+        X.dispose();
     }
 }
