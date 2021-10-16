@@ -7,10 +7,7 @@ import java.io.IOException;
 public class Start extends Game {
     @Override
     public void create() {
-        try {
-            setScreen(new GameScreen(this));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        setScreen(new LobbyScreen(this));
     }
+
 }

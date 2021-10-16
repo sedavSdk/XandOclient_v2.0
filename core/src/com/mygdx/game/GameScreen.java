@@ -25,14 +25,15 @@ import java.util.Vector;
 public class GameScreen implements Screen {
     OrthographicCamera camera;
     Texture fiel, fieldActive, X, O;
-    final static int _FIELD_SIZE = 25;
-    final static int _FIELD_NUM = 27;
+    final static int _FIELD_SIZE = 30;
+    final static int _FIELD_NUM = 20;
     static Stage stage;
     Start game;
     static Field.Fig test;
-    static boolean flagWin, flagDispose, flagInput;
+    static boolean flagWin, flagDispose, flagInput, flag_update;
     static Vector<Field> fields;
     static PrintWriter out;
+    Timer timer = new Timer();
     public enum Turn{
         X,
         O
@@ -40,20 +41,31 @@ public class GameScreen implements Screen {
     static BufferedReader input;
     Socket socket;
     static Turn turn, nowTurn;
-    public GameScreen(Start game) throws IOException {
-        System.out.println(1);
-        socket = new Socket("localhost", 1321);
-        input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        out = new PrintWriter(socket.getOutputStream());
-        String s = input.readLine();
-        if(s.equals("X")) turn = Turn.X;
-        else turn = Turn.O;
+    public GameScreen(Start game, Socket socket, BufferedReader in, PrintWriter p) throws IOException {
+        this.socket = socket;
+        input = in;
+        out = p;
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                flag_update = true;
+            }
+        }, 500, 1000);
+            String s = input.readLine();
+            System.out.print(s);
+            if (s.equals("X")){
+                turn = Turn.X;
+            }
+            else if (s.equals("O")){
+                turn = Turn.O;
+            }
         nowTurn = Turn.X;
 
         this.game = game;
         flagWin = false;
         flagDispose = false;
         flagInput = false;
+        flag_update = false;
 
         fiel = new Texture("field.png");
         fieldActive = new Texture("field_active.png");
@@ -73,6 +85,7 @@ public class GameScreen implements Screen {
     }
 
     static void send(int i) {
+        System.out.println(i);
         out.println(i);
         out.flush();
     }
@@ -172,6 +185,10 @@ public class GameScreen implements Screen {
         }
         }
         if(flagDispose) dispose();
+        if(flag_update){
+            flag_update = false;
+            send(-2);
+        }
         stage.draw();
     }
 
@@ -189,8 +206,9 @@ public class GameScreen implements Screen {
     public void resume() {
             try {
                     int u = Integer.parseInt(input.readLine());
-                    fields.get(u).addFigureFromServer();
-            } catch (IOException e) {
+                    System.out.print(u);
+                    if(u > -1) fields.get(u).addFigureFromServer();
+            } catch (NumberFormatException | IOException e) {
                 e.printStackTrace();
             }
     }
@@ -204,11 +222,7 @@ public class GameScreen implements Screen {
     public void dispose() {
         flagDispose = false;
         stage.dispose();
-        try {
-            game.setScreen(new GameScreen(game));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        game.setScreen(new LobbyScreen(game));
         fiel.dispose();
         fieldActive.dispose();
         X.dispose();

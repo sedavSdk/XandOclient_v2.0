@@ -105,7 +105,6 @@ public class Field extends Actor {
                 figure.setBounds(x, y, _FIELD_SIZE, _FIELD_SIZE);
                 GameScreen.nowTurn = GameScreen.Turn.O;
                 fig = Fig.X;
-                System.out.println(GameScreen.nowTurn);
             }
             flag = true;
             GameScreen.findWin(num);
