@@ -39,15 +39,21 @@ public class LobbyScreen implements Screen {
     Stage stage;
     OrthographicCamera camera;
     Header header = new Header();
-    static float top = 550, bottom = 550, now_y = 550;
+    BottomPanel bottomPanel = new BottomPanel();
+    MyButtonNo no;
+    static float top = 550, bottom = 0, now_y = 550;
 
 
     public LobbyScreen(Start game) {
+        new MyFont();
         texture = new Texture("player.png");
         camera = new OrthographicCamera();
         stage = new Stage(new FillViewport(300, 700, camera));
         camera.position.set(new Vector3(150, 350,3));
         stage.addActor(header);
+        stage.addActor(bottomPanel);
+        no = new MyButtonNo(10, 50, 100, 60);
+        stage.addActor(no);
 
         flag_update = false;
 
@@ -57,7 +63,6 @@ public class LobbyScreen implements Screen {
         players = new Vector<>();
         listener = new MyListener(this);
         Gdx.input.getTextInput(listener, "Введите имя", " ", name);
-        new MyFont();
     }
 
     void goNext(String name) throws IOException {
@@ -108,9 +113,13 @@ public class LobbyScreen implements Screen {
             }
             if(!flag){
                 players.add(new Player(players_names[i], players.size() - 1, texture, this));
-                bottom -= 30;
+                bottom += 30;
                 stage.addActor(players.lastElement());
-                if(players.lastElement().getZIndex() > header.getZIndex()) header.setZIndex(players.lastElement().getZIndex() + 1);
+                if(players.lastElement().getZIndex() > header.getZIndex()){
+                    header.setZIndex(players.lastElement().getZIndex() + 1);
+                    bottomPanel.setZIndex(players.lastElement().getZIndex() + 1);
+                    no.setZIndex(players.lastElement().getZIndex() + 2);
+                }
             }
         }
         for(int i = 0; i < players.size(); ++i)
@@ -119,7 +128,7 @@ public class LobbyScreen implements Screen {
                     players.get(j).move();
                 }
                 players.get(i).remove();
-                bottom += 30;
+                bottom -= 30;
                 players.remove(i);
             }
     }
@@ -170,11 +179,8 @@ public class LobbyScreen implements Screen {
                     y = top - now_y;
                 }
             } else {
-                if(top - bottom < 350) y = 0;
-                else if(bottom > now_y - 350 + y)
-                        y = bottom - now_y + 350;
+                if(now_y - bottom + y > 200) y = 200 - now_y + bottom;
                 if(y < 0) y = 0;
-                System.out.println(y);
             }
             now_y += y;
             for (int i = 0; i < players.size(); ++i)

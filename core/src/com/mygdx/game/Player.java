@@ -16,7 +16,7 @@ import sun.font.TrueTypeFont;
 import sun.font.TrueTypeGlyphMapper;
 
 public class Player extends Actor {
-    boolean updated = true;
+    boolean updated = true, inv;
     String name;
     int i;
     Texture texture;
@@ -47,17 +47,19 @@ public class Player extends Actor {
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 ny = y;
                 want_y = y;
+                inv = true;
                 return super.touchDown(event, x, y, pointer, button);
             }
 
             @Override
             public void touchDragged(InputEvent event, float x, float y, int pointer) {
+                inv = false;
                 LobbyScreen.move(y - ny);
             }
 
             @Override
             public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-                //lobby.invite(name);
+                if(inv) lobby.invite(name);
                 super.touchUp(event, x, y, pointer, button);
             }
         };
