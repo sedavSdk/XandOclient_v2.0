@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
@@ -39,8 +40,7 @@ public class LobbyScreen implements Screen {
     Stage stage;
     OrthographicCamera camera;
     Header header = new Header();
-    BottomPanel bottomPanel = new BottomPanel();
-    MyButtonNo no;
+    BottomPanel bottomPanel;
     static float top = 550, bottom = 0, now_y = 550;
 
 
@@ -51,9 +51,9 @@ public class LobbyScreen implements Screen {
         stage = new Stage(new FillViewport(300, 700, camera));
         camera.position.set(new Vector3(150, 350,3));
         stage.addActor(header);
+        bottomPanel = new BottomPanel(this);
         stage.addActor(bottomPanel);
-        no = new MyButtonNo(10, 50, 100, 60);
-        stage.addActor(no);
+        bottomPanel.createButtons();
 
         flag_update = false;
 
@@ -68,7 +68,7 @@ public class LobbyScreen implements Screen {
     void goNext(String name) throws IOException {
         Gdx.input.setInputProcessor(stage);
         this.name = name;
-        socket = new Socket("m-cortex.com", 1321);
+        socket = new Socket("localhost", 1321);
         input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         out = new PrintWriter(socket.getOutputStream());
         out.println(name);
@@ -86,23 +86,24 @@ public class LobbyScreen implements Screen {
         out.flush();
         String s;
         try {
-            s = input.readLine();
-            if(s.equals("invite")){
-                access();
-                return;
-            }
-            if(s.equals("start")){
-                game.setScreen(new GameScreen(game, socket, input, out));
-                dispose();
-                return;
-            }
-            players_names = s.split(" ");
+                s = input.readLine();
+                if (s.startsWith("invite")) {
+                    access(s.substring(6));
+                    return;
+                }
+                if (s.equals("start")) {
+                    game.setScreen(new GameScreen(game, socket, input, out));
+                    dispose();
+                    return;
+                }
+                if(!s.equals("{!?"))
+                    players_names = s.split(" ");
         } catch (IOException e){
 
         }
         for(int i = 0; i < players.size(); ++i) players.get(i).updated = false;
         for (int i = 0; i < players_names.length; ++i){
-            if(players_names[i].equals(" ") || players_names[i].equals("\n") || players_names[i].equals("")) continue;
+            if(players_names[i].equals(" ") || players_names[i].equals("\n") || players_names[i].equals("") || players_names[i].equals(name.substring(1))) continue;
             boolean flag = false;
             for(int j = 0; j < players.size(); ++j){
                 if(players_names[i].equals(players.get(j).name)){
@@ -118,7 +119,6 @@ public class LobbyScreen implements Screen {
                 if(players.lastElement().getZIndex() > header.getZIndex()){
                     header.setZIndex(players.lastElement().getZIndex() + 1);
                     bottomPanel.setZIndex(players.lastElement().getZIndex() + 1);
-                    no.setZIndex(players.lastElement().getZIndex() + 2);
                 }
             }
         }
@@ -134,7 +134,7 @@ public class LobbyScreen implements Screen {
     }
 
     void invite(String name){
-        if(this.name.equals(name)) return;
+        System.out.println("inv" + name);
         out.println("inv" + name);
         out.flush();
     }
@@ -144,21 +144,8 @@ public class LobbyScreen implements Screen {
 
     }
 
-    void access(){
-        Input.TextInputListener listener2 = new Input.TextInputListener() {
-            @Override
-            public void input(String text) {
-                out.println("yes");
-                out.flush();
-            }
-
-            @Override
-            public void canceled() {
-                out.println("no");
-                out.flush();
-            }
-        };
-        Gdx.input.getTextInput(listener2, "присоединиться к лобби?", " ", "");
+    void access(String s){
+        bottomPanel.access(s);
     }
 
     @Override

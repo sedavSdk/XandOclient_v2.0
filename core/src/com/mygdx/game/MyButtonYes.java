@@ -8,7 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
-public class MyButtonNo extends Actor {
+public class MyButtonYes extends Actor {
     Sprite sprite;
     ClickListener listener;
     Texture up, down;
@@ -17,9 +17,9 @@ public class MyButtonNo extends Actor {
     int x, y, wight, height;
     boolean flag_use = false;
 
-    public MyButtonNo(final int xx, final int yy, final int wight, final int height) {
-        up = new Texture("button_no_up.png");
-        down = new Texture("button_no_down.png");
+    public MyButtonYes(final int xx, final int yy, final int wight, final int height) {
+        up = new Texture("button_yes_up.png");
+        down = new Texture("button_yes_down.png");
         sprite = new Sprite(up);
         this.x = xx;
         this.y = yy;
@@ -33,8 +33,8 @@ public class MyButtonNo extends Actor {
 
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                    sprite.setTexture(down);
-                    sprite.setBounds(xx + 5, yy - 25, wight - 5, height - 5);
+                sprite.setTexture(down);
+                sprite.setBounds(xx + 5, yy - 25, wight - 5, height - 5);
                 return super.touchDown(event, x, y, pointer, button);
             }
 
@@ -51,6 +51,6 @@ public class MyButtonNo extends Actor {
 
     public void mydraw(Batch batch, float parentAlpha) {
         sprite.draw(batch);
-        font.draw(batch, "нет",  sprite.getX() + 10,  sprite.getY() + 30);
+        font.draw(batch, "да",  sprite.getX() + 10,  sprite.getY() + 30);
     }
 }

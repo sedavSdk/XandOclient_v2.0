@@ -59,7 +59,7 @@ public class Player extends Actor {
 
             @Override
             public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-                if(inv) lobby.invite(name);
+                if(inv) lobby.bottomPanel.invite(name);
                 super.touchUp(event, x, y, pointer, button);
             }
         };
