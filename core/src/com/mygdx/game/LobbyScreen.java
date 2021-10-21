@@ -13,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.FillViewport;
+import com.badlogic.gdx.utils.viewport.StretchViewport;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -48,12 +49,13 @@ public class LobbyScreen implements Screen {
         new MyFont();
         texture = new Texture("player.png");
         camera = new OrthographicCamera();
-        stage = new Stage(new FillViewport(300, 700, camera));
+        stage = new Stage(new StretchViewport(300, 700, camera));
         camera.position.set(new Vector3(150, 350,3));
         stage.addActor(header);
         bottomPanel = new BottomPanel(this);
         stage.addActor(bottomPanel);
         bottomPanel.createButtons();
+        System.out.println(Gdx.graphics.getHeight());
 
         flag_update = false;
 
@@ -68,7 +70,7 @@ public class LobbyScreen implements Screen {
     void goNext(String name) throws IOException {
         Gdx.input.setInputProcessor(stage);
         this.name = name;
-        socket = new Socket("localhost", 1321);
+        socket = new Socket("m-cortex.com", 1321);
         input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         out = new PrintWriter(socket.getOutputStream());
         out.println(name);
@@ -87,17 +89,19 @@ public class LobbyScreen implements Screen {
         String s;
         try {
                 s = input.readLine();
-                if (s.startsWith("invite")) {
-                    access(s.substring(6));
-                    return;
+                if(s != null) {
+                    if (s.startsWith("invite")) {
+                        access(s.substring(6));
+                        return;
+                    }
+                    if (s.equals("start")) {
+                        game.setScreen(new GameScreen(game, socket, input, out));
+                        dispose();
+                        return;
+                    }
+                    if (!s.equals("{!?"))
+                        players_names = s.split(" ");
                 }
-                if (s.equals("start")) {
-                    game.setScreen(new GameScreen(game, socket, input, out));
-                    dispose();
-                    return;
-                }
-                if(!s.equals("{!?"))
-                    players_names = s.split(" ");
         } catch (IOException e){
 
         }

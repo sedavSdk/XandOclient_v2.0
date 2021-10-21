@@ -26,7 +26,7 @@ public class MyButtonYes extends Actor {
         this.height = height;
         this.wight = wight;
         this.setBounds(xx, yy, wight, height);
-        sprite.setBounds(xx, yy - 30, wight, height);
+        sprite.setBounds(xx, yy, wight, height);
         font = MyFont.ruFont;
         listener = new ClickListener(){
 
@@ -34,14 +34,14 @@ public class MyButtonYes extends Actor {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 sprite.setTexture(down);
-                sprite.setBounds(xx + 5, yy - 25, wight - 5, height - 5);
+                sprite.setBounds(xx + 5, yy + 5, wight - 5, height - 5);
                 return super.touchDown(event, x, y, pointer, button);
             }
 
             @Override
             public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
                 sprite.setTexture(up);
-                sprite.setBounds(xx, yy - 30, wight, height);
+                sprite.setBounds(xx, yy, wight, height);
                 flag_use = true;
                 super.touchUp(event, x, y, pointer, button);
             }

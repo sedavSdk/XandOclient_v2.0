@@ -11,6 +11,9 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.FillViewport;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.StretchViewport;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -73,7 +76,7 @@ public class GameScreen implements Screen {
         
         camera = new OrthographicCamera();
         stage = new Stage(new ExtendViewport(600, 700, camera));
-        camera.position.set(new Vector3(300, 350,3));
+        camera.position.set(new Vector3(300, 300,3));
         fields = new Vector<>(_FIELD_NUM * _FIELD_NUM);
 
         for(int i = 0; i < _FIELD_NUM * _FIELD_NUM; ++i){

@@ -46,14 +46,14 @@ public class BottomPanel extends Actor {
     public void draw(Batch batch, float parentAlpha) {
         sprite.draw(batch);
         if(flag_visible) {
-            font.draw(batch, "Пригласить игрока " + name, getX() + 5, getY() + 150);
-            font.draw(batch, "в лобби?", getX() + 5, getY() + 120);
+            font.draw(batch, "Пригласить игрока " + name, getX() + 5, getY() + 180);
+            font.draw(batch, "в лобби?", getX() + 5, getY() + 150);
             no.mydraw(batch, parentAlpha);
             yes.mydraw(batch, parentAlpha);
         }
         if(flag_is_invited) {
-            font.draw(batch, "Перейти в лобби", getX() + 5, getY() + 150);
-            font.draw(batch, "игрока" + name + "?", getX() + 5, getY() + 120);
+            font.draw(batch, "Перейти в лобби", getX() + 5, getY() + 180);
+            font.draw(batch, "игрока " + name + "?", getX() + 5, getY() + 150);
             no.mydraw(batch, parentAlpha);
             yes.mydraw(batch, parentAlpha);
         }

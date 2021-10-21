@@ -39,7 +39,7 @@ public class Player extends Actor {
 
         sprite = new Sprite(texture);
         sprite.setBounds(0, y, 300, 30);
-        this.setBounds(0, y - 30, 300, 30);
+        this.setBounds(0, y, 300, 30);
         listener = new ClickListener(){
 
 
@@ -71,7 +71,7 @@ public class Player extends Actor {
         y += 30;
         ny += 30;
         sprite.setBounds(0, y, 300, 30);
-        this.setBounds(0, y - 30, 300, 30);
+        this.setBounds(0, y, 300, 30);
     }
 
     @Override
@@ -84,7 +84,7 @@ public class Player extends Actor {
         want_y = y;
         this.y += want_y;
         sprite.setBounds(0, this.y, 300, 30);
-        this.setBounds(0, this.y - 30, 300, 30);
+        this.setBounds(0, this.y, 300, 30);
     }
 
     @Override
